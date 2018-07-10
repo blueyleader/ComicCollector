@@ -9,6 +9,8 @@ public class Comic implements Serializable {
     public String url;
     public String issue;
 
+    public Boolean collected = false;
+
     public Comic(String id, String name, String date, String url, String issue){
         this.id = id;
         this.name = name;

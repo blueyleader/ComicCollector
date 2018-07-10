@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -51,16 +53,19 @@ public class MainActivity extends AppCompatActivity {
     public final static String json_cover_date = "cover_date";
     public final static String json_issue_number = "issue_number";
     public final static String json_start_year = "start_year";
-
-
     public final static String json_count_of_issue_appearances = "count_of_issue_appearances";
     public final static String json_site_detail_url = "site_detail_url";
 
-    public HashMap<Integer,Volume> set;
     public String key = "57e9f1dc4a6a9bdde575ca93d60621da18dcd080";
+    public HashMap<Integer,Volume> set;
+
     public ArrayList<String> charactersToRip;
     public ArrayList<String> volumesToRip;
     public ArrayList<String> issuesToRip;
+
+    private RecyclerView mRecyclerView;
+    private VolumeAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +73,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         txtJson = findViewById(R.id.text);
 
+        mRecyclerView = findViewById(R.id.list);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+
         File file = new File(getDir("data", MODE_PRIVATE), "map");
         if(file.exists()){
             try {
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                 set = (HashMap<Integer,Volume>)ois.readObject();
+
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -89,20 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
             new updateData().execute();
         }
-
-
-
-
-        //charactersToRip = new ArrayList<>();
-        //volumesToRip = new ArrayList<>();
-        //issuesToRip = new ArrayList<>();
-
-
-        //charactersToRip.add("4005-2349");
-
-        //new updateData().execute();
-        //new CharProcessor().execute("4005-2349");
-        //new JsonTask().execute("https://comicvine.gamespot.com/api/character/4005-2349/?api_key=57e9f1dc4a6a9bdde575ca93d60621da18dcd080&format=json");
+        mAdapter = new VolumeAdapter(set);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     Button btnHit;
@@ -194,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //TODO update Ui
+            mAdapter.updateData(set);
+            mAdapter.notifyDataSetChanged();
+
         }
     }
 
