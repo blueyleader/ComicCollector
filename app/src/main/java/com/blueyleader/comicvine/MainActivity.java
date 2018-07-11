@@ -1,14 +1,18 @@
 package com.blueyleader.comicvine;
 
-import android.app.ProgressDialog;
+import android.app.ActionBar;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Toolbar;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,22 +67,26 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<String> volumesToRip;
     public ArrayList<String> issuesToRip;
 
-    private RecyclerView mRecyclerView;
-    private VolumeAdapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private ListView listView;
+    private VolumeAdapter adapter;
+
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txtJson = findViewById(R.id.text);
 
-        mRecyclerView = findViewById(R.id.list);
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        Toolbar myToolbar = findViewById(R.id.toolbar);
+        setActionBar(myToolbar);
+        actionBar = getActionBar();
 
 
+        //TODO
+        //load array of collected ids
+
+
+        //load map of comics
         File file = new File(getDir("data", MODE_PRIVATE), "map");
         if(file.exists()){
             try {
@@ -101,13 +109,73 @@ public class MainActivity extends AppCompatActivity {
 
             new updateData().execute();
         }
-        mAdapter = new VolumeAdapter(set);
-        mRecyclerView.setAdapter(mAdapter);
+
+        listView = (ListView) findViewById(R.id.list);
+
+        adapter = new VolumeAdapter(set);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("ComicVine","onclick: "+ position);
+                VolumeAdapter.ViewHolder holder = (VolumeAdapter.ViewHolder) view.getTag();
+                adapter.extended[holder.ref]=!adapter.extended[holder.ref];
+                if(adapter.extended[holder.ref]){
+                    holder.issueText.setVisibility(View.GONE);
+                    holder.comicList.setVisibility(View.VISIBLE);
+                }
+                else{
+                    holder.issueText.setVisibility(View.VISIBLE);
+                    holder.comicList.setVisibility(View.GONE);
+                }
+            }
+        });
+
     }
 
-    Button btnHit;
-    TextView txtJson;
-    ProgressDialog pd;
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        //MenuInflater inflater = getMenuInflater();
+        //inflater.inflate(R.menu.main, menu);
+        //return super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.menu, menu);
+        // Retrieve the SearchView and plug it into SearchManager
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        //SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        Log.d("ComicVine","menu clicked");
+        /*switch(id) {
+            case R.id.refresh:
+                //TODO add refresh state method to dd_service
+                setState(controller.getState());
+                break;
+            case R.id.toggleChatHead:
+                Intent toggleChatHead = new Intent();
+                toggleChatHead.setAction("com.symbol.rxloggerutility.intent.action.CHATHEAD_TOGGLE");
+                toggleChatHead.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                this.getApplicationContext().sendBroadcast(toggleChatHead);
+                break;
+            case R.id.backup:
+                controller.backup();
+                break;
+        }*/
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public String getJson(String web){
 
@@ -194,8 +262,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //TODO update Ui
-            mAdapter.updateData(set);
-            mAdapter.notifyDataSetChanged();
+            //mAdapter.updateData(set);
+            //mAdapter.notifyDataSetChanged();
 
         }
     }
