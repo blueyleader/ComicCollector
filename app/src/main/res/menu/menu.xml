@@ -10,8 +10,12 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/Settings"
-        android:title="Item"
-        app:showAsAction="always"
+        android:id="@+id/settings"
+        android:title="Settings"
+        android:icon="@drawable/setting"/>
+
+    <item
+        android:id="@+id/stats"
+        android:title="Stats"
         android:icon="@drawable/setting"/>
 </menu>
