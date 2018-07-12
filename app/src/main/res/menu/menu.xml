@@ -11,11 +11,9 @@
 
     <item
         android:id="@+id/settings"
-        android:title="Settings"
-        android:icon="@drawable/setting"/>
+        android:title="Settings"/>
 
     <item
         android:id="@+id/stats"
-        android:title="Stats"
-        android:icon="@drawable/setting"/>
+        android:title="Stats"/>
 </menu>

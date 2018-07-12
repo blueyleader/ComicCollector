@@ -32,12 +32,12 @@
         app:layout_constraintLeft_toLeftOf="@+id/guideline"/>
 
     <android.support.constraint.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/guideline"
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@id/checkBox"
-        app:layout_constraintGuide_percent=".9" />
+        app:layout_constraintGuide_percent="0.92"/>
 
     <View
         android:layout_width="match_parent"

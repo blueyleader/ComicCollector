@@ -1,6 +1,7 @@
 package com.blueyleader.comicvine;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -12,7 +13,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toolbar;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,6 +63,11 @@ public class MainActivity extends AppCompatActivity {
 
     public String key = "57e9f1dc4a6a9bdde575ca93d60621da18dcd080";
     public HashMap<Integer,Volume> set;
+    public HashSet<Integer> collected;
+
+    public HashMap<Integer,RipObject> charaters;
+    public HashMap<Integer,RipObject> volumes;
+    public HashMap<Integer,RipObject> issues;
 
     public ArrayList<String> charactersToRip;
     public ArrayList<String> volumesToRip;
@@ -154,26 +160,17 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         Log.d("ComicVine","menu clicked");
-        /*switch(id) {
-            case R.id.refresh:
-                //TODO add refresh state method to dd_service
-                setState(controller.getState());
+        switch(id){
+            case R.id.settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 break;
-            case R.id.toggleChatHead:
-                Intent toggleChatHead = new Intent();
-                toggleChatHead.setAction("com.symbol.rxloggerutility.intent.action.CHATHEAD_TOGGLE");
-                toggleChatHead.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                this.getApplicationContext().sendBroadcast(toggleChatHead);
-                break;
-            case R.id.backup:
-                controller.backup();
-                break;
-        }*/
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
-    public String getJson(String web){
+    public static String getJson(String web){
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
