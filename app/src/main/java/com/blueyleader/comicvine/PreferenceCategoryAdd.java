@@ -1,12 +1,15 @@
 package com.blueyleader.comicvine;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.preference.PreferenceCategory;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -50,14 +53,42 @@ public class PreferenceCategoryAdd extends PreferenceCategory {
         ib.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TypeHolder type = (TypeHolder) v.getTag();
-                int val = (int)(Math.random()*100);
-                RipObject rp = new RipObject(val+"",val+"",val);
-                type.map.put(val,rp);
-                type.view.addPreference(new RipPreference(type.view.getContext(), rp));
-                Log.d("ComicVine","tag was " + rp.name);
+
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setTitle("please add").setMessage("Enter id of object to collect");
+
+                builder.setView(R.layout.add_rip_dialog);
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK button
+
+                        int text = Integer.parseInt(((EditText)((AlertDialog)dialog).getCurrentFocus().findViewById(R.id.id_edit)).getText().toString());
+
+                        Log.d("ComicVine","Text was " + text);
+
+                        TypeHolder type = (TypeHolder) ((AlertDialog)dialog).getCurrentFocus().findViewById(R.id.id_edit).getTag();
+                        RipObject rp = new RipObject(text+"",text+"",text);
+                        type.map.put(text,rp);
+                        type.view.addPreference(new RipPreference(type.view.getContext(), rp));
+                    }
+                });
+                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+                dialog.getCurrentFocus().findViewById(R.id.id_edit).setTag(type);
             }
         });
+
         return view;
     }
 }

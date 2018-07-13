@@ -13,6 +13,8 @@
     <string name="main_setting_export">Export</string>
     <string name="main_setting_backup">Backup</string>
 
+    <string name="cancel">Cancel</string>
+
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
 

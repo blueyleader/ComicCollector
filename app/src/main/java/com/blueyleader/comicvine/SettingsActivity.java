@@ -204,24 +204,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
 
 
-            PreferenceCategoryAdd charaters = new PreferenceCategoryAdd(screen.getContext(),"Characters",new TypeHolder(charactersMap));
+            PreferenceCategoryAdd charaters = new PreferenceCategoryAdd(screen.getContext(),"Characters",new TypeHolder(charactersMap,screen.getContext()));
             charaters.type.view=charaters;
             charaters.setTitle("Characters");
             screen.addPreference(charaters);
 
-            PreferenceCategoryAdd volumes = new PreferenceCategoryAdd(screen.getContext(),"Volumes",new TypeHolder(volumesMap));
-            volumes.type.view=volumes;
-            volumes.setTitle("Volumes");
-            screen.addPreference(volumes);
-
-            PreferenceCategoryAdd issues = new PreferenceCategoryAdd(screen.getContext(),"Issues",new TypeHolder(issuesMap));
-            issues.type.view=issues;
-            issues.setTitle("Issues");
-            screen.addPreference(issues);
-
-            charactersMap.put(0,new RipObject("0","0",0));
+            /*charactersMap.put(0,new RipObject("0","0",0));
             charactersMap.put(1,new RipObject("1","1",1));
-            charactersMap.put(2,new RipObject("2","2",2));
+            charactersMap.put(2,new RipObject("2","2",2));*/
             RipObject[] characterArray = charactersMap.values().toArray(new RipObject[0]);
 
 
