@@ -181,28 +181,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
 
-            PreferenceScreen screen = this.getPreferenceScreen();
-            PreferenceCategoryAdd charaters = new PreferenceCategoryAdd(screen.getContext(),"Characters",0);
-            charaters.setTitle("Characters");
-            screen.addPreference(charaters);
-
-            PreferenceCategoryAdd volumes = new PreferenceCategoryAdd(screen.getContext(),"Volumes",1);
-            volumes.setTitle("Volumes");
-            screen.addPreference(volumes);
-
-            PreferenceCategoryAdd issues = new PreferenceCategoryAdd(screen.getContext(),"Issues",2);
-            issues.setTitle("Issues");
-            screen.addPreference(issues);
-
-            HashMap<Integer,RipObject> charatersMap = null;
+            HashMap<Integer,RipObject> charactersMap = null;
             HashMap<Integer,RipObject> volumesMap = null;
             HashMap<Integer,RipObject> issuesMap = null;
+
+            PreferenceScreen screen = this.getPreferenceScreen();
 
             File file = new File(screen.getContext().getDir("data", MODE_PRIVATE), "map_characters");
             if(file.exists()){
                 try {
                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                    charatersMap = (HashMap<Integer,RipObject>)ois.readObject();
+                    charactersMap = (HashMap<Integer,RipObject>)ois.readObject();
 
                 }
                 catch(Exception e){
@@ -210,52 +199,44 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 }
             }
 
-            if(charatersMap == null){
-                charatersMap = new HashMap<>();
+            if(charactersMap == null){
+                charactersMap = new HashMap<>();
             }
-            charatersMap.put(0,new RipObject("0","0",0));
-            charatersMap.put(1,new RipObject("1","1",1));
-            charatersMap.put(2,new RipObject("2","2",2));
-            RipObject[] charaterArray = charatersMap.values().toArray(new RipObject[0]);
 
 
-            Arrays.sort(charaterArray, new Comparator<RipObject>() {
+            PreferenceCategoryAdd charaters = new PreferenceCategoryAdd(screen.getContext(),"Characters",new TypeHolder(charactersMap));
+            charaters.type.view=charaters;
+            charaters.setTitle("Characters");
+            screen.addPreference(charaters);
+
+            PreferenceCategoryAdd volumes = new PreferenceCategoryAdd(screen.getContext(),"Volumes",new TypeHolder(volumesMap));
+            volumes.type.view=volumes;
+            volumes.setTitle("Volumes");
+            screen.addPreference(volumes);
+
+            PreferenceCategoryAdd issues = new PreferenceCategoryAdd(screen.getContext(),"Issues",new TypeHolder(issuesMap));
+            issues.type.view=issues;
+            issues.setTitle("Issues");
+            screen.addPreference(issues);
+
+            charactersMap.put(0,new RipObject("0","0",0));
+            charactersMap.put(1,new RipObject("1","1",1));
+            charactersMap.put(2,new RipObject("2","2",2));
+            RipObject[] characterArray = charactersMap.values().toArray(new RipObject[0]);
+
+
+            Arrays.sort(characterArray, new Comparator<RipObject>() {
                 public int compare(RipObject o1, RipObject o2) {
                     // Intentional: Reverse order for this demo
                     return o1.name.compareTo(o2.name);
                 }
             });
 
-            for(int x=0;x<charaterArray.length;x++){
-                RipObject rip = new RipObject(charaterArray[x].name,charaterArray[x].id,charaterArray[x].type);
+            for(int x=0;x<characterArray.length;x++){
+                RipObject rip = new RipObject(characterArray[x].name,characterArray[x].id,characterArray[x].type);
                 RipPreference rp = new RipPreference(screen.getContext(), rip);
                 charaters.addPreference(rp);
             }
-            //add charaters
-            /*RipObject a = new RipObject("a","a",0);
-            RipPreference t = new RipPreference(screen.getContext(), a);
-            t.setKey("t");
-            t.setTitle("t");
-            t.setSummary("t");
-            charaters.addPreference(t);
-
-            RipPreference z = new RipPreference(screen.getContext(),new RipObject("b","b",1));
-            z.setKey("z");
-            z.setTitle("z");
-            z.setSummary("z");
-            charaters.addPreference(z);*/
-            /*
-            PreferenceCategory category = new PreferenceCategory(screen.getContext());
-            category.setTitle("Channel Configuration");
-            screen.addPreference(category);
-
-            CheckBoxPreference checkBoxPref = new CheckBoxPreference(screen.getContext());
-            checkBoxPref.setKey("a_ENABLED");
-            checkBoxPref.setTitle("a_Enabled");
-            checkBoxPref.setSummary("a");
-            checkBoxPref.setChecked(true);
-
-            category.addPreference(checkBoxPref);*/
 
             bindPreferenceSummaryToValue(findPreference("example_text"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
@@ -331,4 +312,5 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
     }
+
 }

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class PreferenceCategoryAdd extends PreferenceCategory {
     String name;
-    int type;
+    TypeHolder type;
 
     public PreferenceCategoryAdd(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
@@ -30,7 +30,7 @@ public class PreferenceCategoryAdd extends PreferenceCategory {
         super(context);
     }
 
-    public PreferenceCategoryAdd(Context context, String name,int type) {
+    public PreferenceCategoryAdd(Context context, String name, TypeHolder type) {
         super(context);
         this.name = name;
         this.type = type;
@@ -50,8 +50,12 @@ public class PreferenceCategoryAdd extends PreferenceCategory {
         ib.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int val = (int) v.getTag();
-                Log.d("ComicVine","tag was " + val);
+                TypeHolder type = (TypeHolder) v.getTag();
+                int val = (int)(Math.random()*100);
+                RipObject rp = new RipObject(val+"",val+"",val);
+                type.map.put(val,rp);
+                type.view.addPreference(new RipPreference(type.view.getContext(), rp));
+                Log.d("ComicVine","tag was " + rp.name);
             }
         });
         return view;
