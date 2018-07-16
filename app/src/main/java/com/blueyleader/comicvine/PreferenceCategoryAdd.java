@@ -70,7 +70,7 @@ public class PreferenceCategoryAdd extends PreferenceCategory {
                         Log.d("ComicVine","Text was " + text);
 
                         TypeHolder type = (TypeHolder) ((AlertDialog)dialog).getCurrentFocus().findViewById(R.id.id_edit).getTag();
-                        RipObject rp = new RipObject(text+"",text+"",text);
+                        RipObject rp = new RipObject(text+"",text+"",text+"",text);
                         type.map.put(text,rp);
                         type.view.addPreference(new RipPreference(type.view.getContext(), rp));
                     }

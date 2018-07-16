@@ -9,7 +9,7 @@
 
     <!-- Main Setting headers -->
     <string name="main_setting_general">General</string>
-    <string name="main_setting_rip_list">Rip List</string>
+    <string name="main_setting_rip_list">Collection List</string>
     <string name="main_setting_export">Export</string>
     <string name="main_setting_backup">Backup</string>
 

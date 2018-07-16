@@ -4,20 +4,13 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.preference.RingtonePreference;
 import android.support.v7.app.ActionBar;
-import android.text.TextUtils;
 import android.view.MenuItem;
 
 import java.io.File;
@@ -49,7 +42,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
-
+/*
             if(preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
@@ -88,7 +81,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
-            }
+            }*/
             return true;
         }
     };
@@ -113,14 +106,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        /*preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
         // Trigger the listener immediately with the preference's
         // current value.
         sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                        .getString(preference.getKey(), ""));*/
     }
 
     @Override
@@ -162,10 +155,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * Make sure to deny any unknown fragments here.
      */
     protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
+        return true;
+        /*return PreferenceFragment.class.getName().equals(fragmentName)
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || DataSyncPreferenceFragment.class.getName().equals(fragmentName)
-                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
+                || NotificationPreferenceFragment.class.getName().equals(fragmentName);*/
     }
 
     /**
@@ -209,9 +203,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             charaters.setTitle("Characters");
             screen.addPreference(charaters);
 
-            /*charactersMap.put(0,new RipObject("0","0",0));
-            charactersMap.put(1,new RipObject("1","1",1));
-            charactersMap.put(2,new RipObject("2","2",2));*/
             RipObject[] characterArray = charactersMap.values().toArray(new RipObject[0]);
 
 
@@ -223,7 +214,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             });
 
             for(int x=0;x<characterArray.length;x++){
-                RipObject rip = new RipObject(characterArray[x].name,characterArray[x].id,characterArray[x].type);
+                RipObject rip = new RipObject(characterArray[x].name,characterArray[x].id,"",characterArray[x].type);
                 RipPreference rp = new RipPreference(screen.getContext(), rip);
                 charaters.addPreference(rp);
             }

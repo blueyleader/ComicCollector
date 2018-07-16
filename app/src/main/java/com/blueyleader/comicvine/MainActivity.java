@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,18 +37,22 @@ import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String web_base = "https://comicvine.gamespot.com/api/";
+    public static final String web_base = "https://comicvine.gamespot.com/api/";
 
-    private static final String web_charater = "character/";
-    private static final String web_charaters = "characters/";
-    private static final String web_volume = "volume/";
-    private static final String web_volumes = "volumes/";
-    private static final String web_issues = "issues/";
+    public static final String web_charater = "character/";
+    public static final String web_charaters = "characters/";
+    public static final String web_volume = "volume/";
+    public static final String web_volumes = "volumes/";
+    public static final String web_issues = "issues/";
+    public static final String web_issue = "issue/";
 
-    private static final String web_api_key = "?api_key=";
-    private static final String web_format = "&format=json";
-    private static final String web_filter_id = "&filter=id:";
+    public static final String web_api_key = "?api_key=";
+    public static final String web_format = "&format=json";
+    public static final String web_filter_id = "&filter=id:";
 
+    public static final String web_character_ref= "4005-";
+    public static final String web_volume_ref= "4050-";
+    public static final String web_issue_ref= "4000-";
     //json strings
     public final static String json_results = "results";
     public final static String json_issue_credits = "issue_credits";
@@ -83,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //TODO remove and make safe
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+        StrictMode.setThreadPolicy(policy);
 
         //TODO
         //load array of collected ids
@@ -170,13 +179,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static String getJson(String web){
+    public static String getJson(String web, boolean continuous){
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
         try {
-            Thread.sleep(1000);
+            if(continuous) {
+                Thread.sleep(1000);
+            }
             URL url = new URL(web);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
@@ -191,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
             while ((line = reader.readLine()) != null) {
                 buffer.append(line+"\n");
-                Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
+                //Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
 
             }
             //txtJson.setText(buffer.toString());
@@ -265,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         for(int z =0;z<charactersToRip.size();z++){
             try {
                 String url = web_base + web_charater + charactersToRip.get(z) + web_api_key + key + web_format;
-                String results = getJson(url);
+                String results = getJson(url,true);
 
                 JSONObject base = new JSONObject(results);
                 JSONObject root = base.getJSONObject(json_results);
@@ -298,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         for(int z =0;z<volumesToRip.size();z++){
             try {
                 String url = web_base + web_volume + volumesToRip.get(z) + web_api_key + key + web_format;
-                String results = getJson(url);
+                String results = getJson(url,true);
 
                 JSONObject base = new JSONObject(results);
                 JSONObject root = base.getJSONObject(json_results);
@@ -343,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
         for(int x=0;x<urls.length;x++) {
             try {
                 Log.d("ComicVine", "url is: " + urls[x]);
-                String results = getJson(urls[x]);
+                String results = getJson(urls[x],true);
                 JSONObject base = new JSONObject(results);
                 JSONArray root = base.getJSONArray(json_results);
                 for(int y=0;y<root.length();y++){
@@ -397,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
         for(int x=0;x<urls.length;x++) {
             try {
                 Log.d("ComicVine", "url is: " + urls[x]);
-                String results = getJson(urls[x]);
+                String results = getJson(urls[x],true);
                 JSONObject base = new JSONObject(results);
                 JSONArray root = base.getJSONArray(json_results);
                 for(int y=0;y<root.length();y++){
