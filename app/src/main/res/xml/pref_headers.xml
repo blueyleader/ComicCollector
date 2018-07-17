@@ -3,7 +3,7 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.blueyleader.comicvine.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.blueyleader.comicvine.GeneralSettings"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/main_setting_general"/>
 
@@ -11,10 +11,5 @@
         android:fragment="com.blueyleader.comicvine.CollectionFragment"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/main_setting_rip_list"/>
-
-    <!--<header
-        android:fragment="com.blueyleader.comicvine.HeaderFragment"
-        android:icon="@drawable/ic_sync_black_24dp"
-        android:title="@string/pref_header_data_sync"/>-->
 
 </preference-headers>

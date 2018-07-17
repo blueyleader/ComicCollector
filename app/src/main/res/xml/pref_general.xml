@@ -30,5 +30,12 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_title_add_friends_to_messages"/>
 
+    <EditTextPreference
+        android:key="API_KEY"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:summary="Your api key gotten from https://comicvine.gamespot.com/api/"
+        android:title="ComicVine API key"/>
+
 
 </PreferenceScreen>

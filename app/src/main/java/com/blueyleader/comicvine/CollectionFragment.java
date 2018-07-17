@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,7 +55,7 @@ public class CollectionFragment extends ListFragment {
 
     public View onCreateView(LayoutInflater inflater, ViewGroup viewGroup, Bundle savedInstanceState) {
         Log.d("ComicVine","in onCreateView");
-        View view =inflater.inflate(R.layout.header_fragment, viewGroup, false);
+        View view =inflater.inflate(R.layout.list_fragment, viewGroup, false);
         adapter = new SettingsAdapter(getActivity().getBaseContext());
         /*adapter = new ArrayAdapter(getActivity(),
                 android.R.layout.simple_list_item_activated_1, headers);*/
@@ -228,16 +229,17 @@ public class CollectionFragment extends ListFragment {
 
                                 }
                                 Log.d("ComicVine","Text was " + num);
-                                SharedPreferences sh = context.getSharedPreferences("SETTINGS",MODE_PRIVATE);
+                                SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (context);
+                                //SharedPreferences sh = context.getSharedPreferences("SETTINGS",MODE_PRIVATE);
 
                                 //todo uncomment
-                                /*if(!sh.contains("API_KEY")){
+                                String key = sh.getString("API_KEY","");
+                                if(key.equals("")){
                                     Log.d("ComicVine","no Key");
                                     Toast.makeText(context,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
-
                                     return;
-                                }*/
-                                String key = sh.getString("API_KEY","57e9f1dc4a6a9bdde575ca93d60621da18dcd080");
+                                }
+
                                 String url ="";
                                 switch(position) {
                                     case 0:
@@ -330,7 +332,6 @@ public class CollectionFragment extends ListFragment {
                     public void onClick(View v) {
                         RipObject rp = (RipObject) v.getTag();
 
-                        Log.d("ComicVine","id is " + rp.id);
                         switch(rp.type){
                             case 0:
                                 charactersMap.remove(Integer.parseInt(rp.id));
@@ -380,40 +381,4 @@ public class CollectionFragment extends ListFragment {
             int type;
         }
     }
-
-    /*private class pullData extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String ret = getJson(strings[0], false);
-
-            try {
-                JSONObject base = new JSONObject(ret);
-                String err = base.getString("error");
-                if(!err.equals("OK")) {
-                    Toast.makeText(context, "The id eneterd was invalid", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                JSONObject root = base.getJSONObject(json_results);
-                String name = root.getString(json_name);
-                int objId = root.getInt(json_id);
-                //ViewHolder type = (ViewHolder) ((AlertDialog)dialog).getCurrentFocus().findViewById(R.id.id_edit).getTag();
-                RipObject rp = new RipObject(name, objId + "", "", position);
-                switch(position) {
-                    case 0:
-                        charactersMap.put(objId, rp);
-                        break;
-                    case 1:
-                        volumesMap.put(objId, rp);
-                        break;
-                    case 2:
-                        issuesMap.put(objId, rp);
-                        break;
-                }
-                updateData();
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 }
