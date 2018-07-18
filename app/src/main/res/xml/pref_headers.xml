@@ -3,9 +3,14 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.blueyleader.comicvine.GeneralSettings"
+        android:fragment="com.blueyleader.comicvine.GeneralSettingsSettings"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/main_setting_general"/>
+
+    <header
+        android:fragment="com.blueyleader.comicvine.SearchSettingsFragment"
+        android:icon="@drawable/search"
+        android:title="@string/main_setting_search"/>
 
     <header
         android:fragment="com.blueyleader.comicvine.CollectionFragment"

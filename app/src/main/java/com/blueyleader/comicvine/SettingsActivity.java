@@ -47,7 +47,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralSettings.class.getName().equals(fragmentName)
+                || GeneralSettingsSettings.class.getName().equals(fragmentName)
+                || SearchSettingsFragment.class.getName().equals(fragmentName)
                 || CollectionFragment.class.getName().equals(fragmentName);
     }
 

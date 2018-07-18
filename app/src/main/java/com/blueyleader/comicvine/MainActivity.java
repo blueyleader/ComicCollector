@@ -1,10 +1,8 @@
 package com.blueyleader.comicvine;
 
-import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -24,12 +22,10 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -135,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d("ComicVine","onclick: "+ position);
                 VolumeAdapter.ViewHolder holder = (VolumeAdapter.ViewHolder) view.getTag();
-                adapter.extended[holder.ref]=!adapter.extended[holder.ref];
-                if(adapter.extended[holder.ref]){
+                adapter.set.get(holder.ref).extended=!adapter.set.get(holder.ref).extended;
+                if(adapter.set.get(holder.ref).extended){
                     holder.issueText.setVisibility(View.GONE);
                     holder.comicList.setVisibility(View.VISIBLE);
                 }
@@ -154,6 +150,18 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
         //SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 

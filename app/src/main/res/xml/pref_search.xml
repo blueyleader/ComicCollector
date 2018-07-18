@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="case_sensitive_search"
+        android:title="@string/search_case_title"
+        android:summary="@string/search_case_summary"/>
+
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/search_volume_default"
+        android:entries="@array/search_volume_entries"
+        android:entryValues="@array/search_volume_values"
+        android:key="search_volume"
+        android:title="@string/search_volume_title"
+        android:summary="@string/search_volume_summary"/>
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/search_comic_default"
+        android:entries="@array/search_comic_entries"
+        android:entryValues="@array/search_comic_values"
+        android:key="search_comic"
+        android:title="@string/search_comic_title"
+        android:summary="@string/search_comic_summary"/>
+</PreferenceScreen>
