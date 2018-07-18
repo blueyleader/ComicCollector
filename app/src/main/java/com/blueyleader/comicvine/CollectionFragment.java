@@ -37,7 +37,7 @@ import static com.blueyleader.comicvine.MainActivity.json_results;
 import static com.blueyleader.comicvine.MainActivity.web_api_key;
 import static com.blueyleader.comicvine.MainActivity.web_base;
 import static com.blueyleader.comicvine.MainActivity.web_character_ref;
-import static com.blueyleader.comicvine.MainActivity.web_charater;
+import static com.blueyleader.comicvine.MainActivity.web_character;
 import static com.blueyleader.comicvine.MainActivity.web_format;
 import static com.blueyleader.comicvine.MainActivity.web_issue;
 import static com.blueyleader.comicvine.MainActivity.web_issue_ref;
@@ -46,8 +46,8 @@ import static com.blueyleader.comicvine.MainActivity.web_volume_ref;
 
 public class CollectionFragment extends ListFragment {
 
-    String[] headers =  new String[] {"General", "To Rip", "Backup", "Export"};
     SettingsAdapter adapter;
+    boolean firstData = true;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,9 +57,6 @@ public class CollectionFragment extends ListFragment {
         Log.d("ComicVine","in onCreateView");
         View view =inflater.inflate(R.layout.list_fragment, viewGroup, false);
         adapter = new SettingsAdapter(getActivity().getBaseContext());
-        /*adapter = new ArrayAdapter(getActivity(),
-                android.R.layout.simple_list_item_activated_1, headers);*/
-
         setListAdapter(adapter);
         return view;
     }
@@ -68,14 +65,9 @@ public class CollectionFragment extends ListFragment {
         HashMap<Integer,RipObject> charactersMap = null;
         HashMap<Integer,RipObject> volumesMap = null;
         HashMap<Integer,RipObject> issuesMap = null;
-
         Context context;
 
         RipObject[][] set;
-        //RipObject[] setVolumes;
-        //RipObject[] setIssues;
-
-        LinearLayout[] comicList = new LinearLayout[3];
 
         public SettingsAdapter(Context context){
             this.context=context;
@@ -132,6 +124,7 @@ public class CollectionFragment extends ListFragment {
         }
 
         public void updateData() {
+            SettingsActivity.self.loading();
             try {
                 File file = new File(context.getDir("data", MODE_PRIVATE), "map_characters");
                 ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
@@ -175,6 +168,15 @@ public class CollectionFragment extends ListFragment {
             Arrays.sort(set[2], new RipObjectCompare());
 
             notifyDataSetChanged();
+            SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (context);
+            Boolean update = sh.getBoolean("auto_pull_update",false);
+            if(update && !firstData) {
+                new UpdateData().execute();
+            }
+            else{
+                firstData = false;
+                MainActivity.self.loadingDialog.cancel();
+            }
         }
 
         @Override
@@ -216,6 +218,7 @@ public class CollectionFragment extends ListFragment {
                         builder.setView(R.layout.add_rip_dialog);
                         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                SettingsActivity.self.loading();
                                 // User clicked OK button
                                 String text =((EditText) ((AlertDialog) dialog).getCurrentFocus().findViewById(R.id.id_edit)).getText().toString();
                                 int num = 0;
@@ -230,9 +233,6 @@ public class CollectionFragment extends ListFragment {
                                 }
                                 Log.d("ComicVine","Text was " + num);
                                 SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (context);
-                                //SharedPreferences sh = context.getSharedPreferences("SETTINGS",MODE_PRIVATE);
-
-                                //todo uncomment
                                 String key = sh.getString("API_KEY","");
                                 if(key.equals("")){
                                     Log.d("ComicVine","no Key");
@@ -243,7 +243,7 @@ public class CollectionFragment extends ListFragment {
                                 String url ="";
                                 switch(position) {
                                     case 0:
-                                        url = web_base + web_charater + web_character_ref + num + web_api_key + key + web_format;
+                                        url = web_base + web_character + web_character_ref + num + web_api_key + key + web_format;
                                         break;
                                     case 1:
                                         url = web_base + web_volume + web_volume_ref + num + web_api_key + key + web_format;

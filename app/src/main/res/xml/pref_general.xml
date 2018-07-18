@@ -14,7 +14,7 @@
         android:title="@string/general_start_title"/>
 
     <SwitchPreference
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="auto_pull_update"
         android:summary="@string/general_update_summary"
         android:title="@string/general_update_title"/>

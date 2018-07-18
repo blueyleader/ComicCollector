@@ -1,10 +1,13 @@
 package com.blueyleader.comicvine;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,11 +39,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
+    public static MainActivity self;
 
     public static final String web_base = "https://comicvine.gamespot.com/api/";
 
-    public static final String web_charater = "character/";
-    public static final String web_charaters = "characters/";
+    public static final String web_character = "character/";
     public static final String web_volume = "volume/";
     public static final String web_volumes = "volumes/";
     public static final String web_issues = "issues/";
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public final static String json_results = "results";
     public final static String json_issue_credits = "issue_credits";
     public final static String json_volume_credits = "volume_credits";
+    public final static String json_issues = "issues";
     public final static String json_id = "id";
     public final static String json_name = "name";
     public final static String json_volume = "volume";
@@ -70,23 +74,19 @@ public class MainActivity extends AppCompatActivity {
     public HashMap<Integer,Volume> set;
     public HashSet<Integer> collected;
 
-    public HashMap<Integer,RipObject> charaters;
-    public HashMap<Integer,RipObject> volumes;
-    public HashMap<Integer,RipObject> issues;
-
     public ArrayList<String> charactersToRip;
     public ArrayList<String> volumesToRip;
     public ArrayList<String> issuesToRip;
 
-    private ListView listView;
-    private VolumeAdapter adapter;
+    public ListView listView;
+    public VolumeAdapter adapter;
 
-    private ActionBar actionBar;
-
+    public ProgressDialog loadingDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        self=this;
 
         //TODO remove and make safe
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -97,31 +97,35 @@ public class MainActivity extends AppCompatActivity {
         //load array of collected ids
 
 
-        //load map of comics
-        File file = new File(getDir("data", MODE_PRIVATE), "map");
-        if(file.exists()){
-            try {
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                set = (HashMap<Integer,Volume>)ois.readObject();
+        charactersToRip = new ArrayList<>();
+        volumesToRip = new ArrayList<>();
+        issuesToRip = new ArrayList<>();
+
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
+        Boolean pull = sh.getBoolean("auto_pull_start",false);
+        if(!pull) {
+            //load map of comics
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            if (file.exists()) {
+                try {
+                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                    set = (HashMap<Integer, Volume>) ois.readObject();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (set == null) {
+                set = new HashMap<>();
 
             }
-            catch(Exception e){
-                e.printStackTrace();
-            }
         }
-        if(set == null){
+        else {
+            loading();
             set = new HashMap<>();
-            charactersToRip = new ArrayList<>();
-            volumesToRip = new ArrayList<>();
-            issuesToRip = new ArrayList<>();
-
-
-            charactersToRip.add("4005-2349");
-
-            new updateData().execute();
+            new UpdateData().execute();
         }
-
-        listView = (ListView) findViewById(R.id.list);
+        listView = findViewById(R.id.list);
 
         adapter = new VolumeAdapter(set);
         listView.setAdapter(adapter);
@@ -147,11 +151,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //MenuInflater inflater = getMenuInflater();
-        //inflater.inflate(R.menu.main, menu);
-        //return super.onCreateOptionsMenu(menu);
-
         getMenuInflater().inflate(R.menu.menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
@@ -173,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.refresh:
+                loading();
+                new UpdateData().execute();
                 break;
         }
 
@@ -230,52 +233,11 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    private class updateData extends AsyncTask<String, String, String> {
 
-
-        @Override
-        protected String doInBackground(String... strings) {
-            //get charater issues
-            characerProcessor();
-
-            //get volume issues
-            volumeProcessor();
-
-            //get issue data
-            issueProcessor();
-
-            //get volume extra info
-            volumeDataProcessor();
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            //TODO save data
+    public void characterProcessor(){
+            for(int z=0;z<charactersToRip.size();z++){
             try {
-                File file = new File(getDir("data", MODE_PRIVATE), "map");
-                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                outputStream.writeObject(set);
-                outputStream.flush();
-                outputStream.close();
-            }
-            catch(Exception e){
-                e.printStackTrace();
-            }
-
-            //TODO update Ui
-            //mAdapter.updateData(set);
-            //mAdapter.notifyDataSetChanged();
-
-        }
-    }
-
-    public void characerProcessor(){
-        for(int z =0;z<charactersToRip.size();z++){
-            try {
-                String url = web_base + web_charater + charactersToRip.get(z) + web_api_key + key + web_format;
+                String url = web_base + web_character + web_character_ref + charactersToRip.get(z) + web_api_key + key + web_format;
                 String results = getJson(url,true);
 
                 JSONObject base = new JSONObject(results);
@@ -290,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
                     if(!set.containsKey(id)) {
                         set.put(id, new Volume(id + "", temp.getString(json_name),temp.getString(json_site_detail_url)));
                     }
-                    //need to get year after
                 }
 
                 //build list of issues to rip data from
@@ -302,29 +263,17 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        charactersToRip.clear();
     }
 
     public void volumeProcessor(){
         for(int z =0;z<volumesToRip.size();z++){
             try {
-                String url = web_base + web_volume + volumesToRip.get(z) + web_api_key + key + web_format;
+                String url = web_base + web_volume + web_volume_ref + volumesToRip.get(z) + web_api_key + key + web_format;
                 String results = getJson(url,true);
 
                 JSONObject base = new JSONObject(results);
                 JSONObject root = base.getJSONObject(json_results);
-                JSONArray issues = root.getJSONArray(json_issue_credits);
-                JSONArray volumes = root.getJSONArray(json_volume_credits);
-
-                //build list of volumes that character is in
-                for(int x = 0; x < volumes.length(); x++) {
-                    JSONObject temp = volumes.getJSONObject(x);
-                    int id = temp.getInt(json_id);
-                    if(!set.containsKey(id)) {
-                        set.put(id, new Volume(id + "", temp.getString(json_name),temp.getString(json_site_detail_url)));
-                    }
-                    //need to get year after
-                }
+                JSONArray issues = root.getJSONArray(json_issues);
 
                 //build list of issues to rip data from
                 for(int x=0;x<issues.length();x++){
@@ -424,5 +373,18 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    public void loading(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(loadingDialog!=null){
+                    loadingDialog.cancel();
+                }
+                loadingDialog =  ProgressDialog.show(MainActivity.self, "",
+                        "Loading. Please wait...", true);
+            }
+        });
     }
 }

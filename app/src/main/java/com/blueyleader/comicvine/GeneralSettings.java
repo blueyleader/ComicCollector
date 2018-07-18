@@ -11,6 +11,4 @@ public class GeneralSettings extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
         setHasOptionsMenu(true);
     }
-
-
 }
