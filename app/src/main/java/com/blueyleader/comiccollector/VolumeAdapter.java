@@ -2,7 +2,6 @@ package com.blueyleader.comiccollector;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +21,6 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
     ArrayList<displayHolder> set;
     ArrayList<displayHolder> filterSet;
     private ValueFilter valueFilter;
-
-    int[] collected;
 
     public VolumeAdapter(HashMap<Integer, Volume> set) {
         updateData(set);
@@ -278,7 +275,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         ArrayList<Comic> filterComics;
         boolean extended;
 
-        public displayHolder(Volume v, ArrayList<Comic> c, boolean e) {
+        private displayHolder(Volume v, ArrayList<Comic> c, boolean e) {
             vol = v;
             comics = c;
             filterComics = comics;

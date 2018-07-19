@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -214,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     fabCol.setImageResource(R.drawable.ic_visibility_off_24px);
                 }
-                sh.edit().putBoolean("show_collected",cur).commit();
+                sh.edit().putBoolean("show_collected",cur).apply();
                 adapter.getFilter().filter(searchView.getQuery());
             }
         });
@@ -230,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     fabNotCol.setImageResource(R.drawable.ic_visibility_off_24px);
                 }
-                sh.edit().putBoolean("show_not_collected",cur).commit();
+                sh.edit().putBoolean("show_not_collected",cur).apply();
                 adapter.getFilter().filter(searchView.getQuery());
                 Log.d("ComicCollector","query is: " + searchView.getQuery());
             }
@@ -277,7 +275,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
-        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        MenuItem search = menu.findItem(R.id.action_search);
+        searchView = (SearchView) search.getActionView();
+        //searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -333,12 +333,12 @@ public class MainActivity extends AppCompatActivity {
 
             reader = new BufferedReader(new InputStreamReader(stream));
 
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             String line;
 
             while ((line = reader.readLine()) != null) {
-                buffer.append(line+"\n");
-
+                buffer.append(line);
+                buffer.append("\n");
             }
             return buffer.toString();
 

@@ -200,7 +200,7 @@ public class CollectionFragment extends ListFragment {
             if(convertView == null) {
                 holder = new ViewHolder();
                 convertView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.preference_category_button, viewGroup, false);
-                holder.nameText = convertView.findViewById(R.id.catagory_title);
+                holder.nameText = convertView.findViewById(R.id.category_title);
                 holder.comicList = convertView.findViewById(R.id.list);
                 holder.ref = position;
                 holder.addButton = convertView.findViewById(R.id.add_button);
@@ -265,7 +265,7 @@ public class CollectionFragment extends ListFragment {
                                     JSONObject base = new JSONObject(ret);
                                     String err = base.getString("error");
                                     if(!err.equals("OK")){
-                                        Toast.makeText(context,"The id eneterd was invalid",Toast.LENGTH_LONG).show();
+                                        Toast.makeText(context,"The id enetered was invalid",Toast.LENGTH_LONG).show();
                                         return;
                                     }
                                     JSONObject root = base.getJSONObject(json_results);
@@ -311,13 +311,13 @@ public class CollectionFragment extends ListFragment {
 
             switch(position){
                 case 0:
-                    holder.nameText.setText("Charaters");
+                    holder.nameText.setText(R.string.characters);
                     break;
                 case 1:
-                    holder.nameText.setText("Volumes");
+                    holder.nameText.setText(R.string.volumes);
                     break;
                 case 2:
-                    holder.nameText.setText("Issues");
+                    holder.nameText.setText(R.string.issues);
                     break;
 
             }
@@ -376,7 +376,6 @@ public class CollectionFragment extends ListFragment {
             TextView nameText;
             LinearLayout comicList;
             ImageButton addButton;
-            ImageButton removeButton;
             int ref;
             int type;
         }

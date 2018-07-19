@@ -1,6 +1,5 @@
 package com.blueyleader.comiccollector;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import java.io.File;
