@@ -1,4 +1,4 @@
-package com.blueyleader.comicvine;
+package com.blueyleader.comiccollector;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
@@ -16,9 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 public class VolumeAdapter extends BaseAdapter implements Filterable{
     ArrayList<displayHolder> set;
@@ -54,7 +52,16 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
 
             Arrays.sort(comicSet[x], new Comparator<Comic>() {
                 public int compare(Comic o1, Comic o2) {
-                    int issue = o1.issue.compareTo(o2.issue);
+                    int issue;
+                    try {
+                        int a = Integer.parseInt(o1.issue);
+                        int b = Integer.parseInt(o2.issue);
+                        issue= a-b;
+                    }
+                    catch (Exception e){
+                        issue=o1.issue.compareTo(o2.issue);
+                    }
+
                     if(issue == 0){
                         int date = o1.date.compareTo(o2.date);
                         if(date == 0){
@@ -64,8 +71,6 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
                     return issue;
                 }
             });
-            Comic a = comicSet[x][0];
-
         }
 
         for(int x=0;x<vol.length;x++){
@@ -116,10 +121,32 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
             holder.issues = holder.issues + set.get(i).comics.get(x).issue + ", ";
             View child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
             TextView name = child.findViewById(R.id.issue_name);
+            CheckBox col = child.findViewById(R.id.collected);
+            col.setChecked(set.get(i).comics.get(x).collected);
+            col.setTag(set.get(i).comics.get(x));
+            col.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Comic comic = (Comic)view.getTag();
+                    if(((CheckBox)view).isChecked()){
+                        MainActivity.self.collected.add(comic.id);
+                        comic.collected=true;
+                    }
+                    else{
+                        MainActivity.self.collected.remove(comic.id);
+                        comic.collected=true;
+                    }
+
+                    MainActivity.self.saveCollected();
+
+                }
+            });
             name.setText(set.get(i).comics.get(x).issue + " - " + set.get(i).comics.get(x).date + " - " + set.get(i).comics.get(x).name);
             holder.comicList.addView(child);
         }
-
+        if(holder.issues.length()>0) {
+            holder.issues = holder.issues.substring(0, holder.issues.length() - 2);
+        }
         holder.nameText.setText(set.get(i).vol.name + " (" + set.get(i).vol.date + ")");
         holder.issueText.setText(holder.issues);
 
@@ -151,88 +178,77 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results=new FilterResults();
-            if(constraint!=null && constraint.length()>0){
-                ArrayList<displayHolder> filterList=new ArrayList<>();
-                SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (MainActivity.self);
-                boolean caseSen = sh.getBoolean("case_sensitive_search",false);
-                Set<String> searchVolume = sh.getStringSet("search_volume",new HashSet<String>());
-                for(int i=0;i<filterSet.size();i++){
-                    boolean filter = false;
-                    String volName = filterSet.get(i).vol.name;
-                    String volDate = filterSet.get(i).vol.date;
-                    String check = constraint.toString();
-                    if(!caseSen){
-                        Log.d("ComicVine","toupper");
-                        volName = volName.toUpperCase();
-                        volDate = volDate.toUpperCase();
-                        check = check.toUpperCase();
-                    }
+            SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (MainActivity.self);
+            boolean col = sh.getBoolean("show_collected",false);
+            boolean notCol = sh.getBoolean("show_not_collected",true);
+            ArrayList<displayHolder> filterList=new ArrayList<>();
 
+            boolean caseSen = sh.getBoolean("case_sensitive_search",false);
+            boolean searchVolumeName = sh.getBoolean("search_volume_name",true);
+            boolean searchVolumeDate = sh.getBoolean("search_volume_date",true);
+            boolean searchIssueNum = sh.getBoolean("search_issue_num",true);
+            boolean searchIssueName = sh.getBoolean("search_issue_name",false);
+            boolean searchIssueDate = sh.getBoolean("search_issue_date",false);
+            for(int i=0;i<filterSet.size();i++){
+                boolean filter = false;
+                String volName = filterSet.get(i).vol.name;
+                String volDate = filterSet.get(i).vol.date;
+                String check = constraint.toString();
+                if(!caseSen){
+                    volName = volName.toUpperCase();
+                    volDate = volDate.toUpperCase();
+                    check = check.toUpperCase();
+                }
 
-                    if(searchVolume != null){
-                        Iterator<String> iterator = searchVolume.iterator();
-                        while(iterator.hasNext() && !filter){
-                            switch(iterator.next()){
-                                case "0":
-                                    if(volName.contains(check)){
-                                        filter = true;
-                                    }
-                                    break;
-                                case "1":
-                                    if(volDate.contains(check)){
-                                        filter = true;
-                                    }
-                                    break;
-                            }
-                        }
-                    }
+                if(searchVolumeName && volName.contains(check)){
+                    filter = true;
+                }
+                if(searchVolumeDate && volDate.contains(check)){
+                    filter = true;
+                }
 
-                    Set<String> searchComic = sh.getStringSet("search_comic", new HashSet<String>());
-
-                    for(int x=0;x<filterSet.get(i).comics.size() && !filter;x++) {
-                        String issueNum = filterSet.get(i).comics.get(x).issue;
+                if(searchIssueNum || searchIssueName || searchIssueDate) {
+                    for (int x = 0; x < filterSet.get(i).comics.size() && !filter; x++) {
+                        String issueNum = filterSet.get(i).comics.get(x).issue+"";
                         String issueName = filterSet.get(i).comics.get(x).name;
                         String issueDate = filterSet.get(i).comics.get(x).date;
-                        if(!caseSen){
+                        if (!caseSen) {
                             issueNum = issueNum.toUpperCase();
                             issueName = issueName.toUpperCase();
                             issueDate = issueDate.toUpperCase();
                         }
 
-                        if(searchComic != null) {
-                            Iterator<String> iterator = searchComic.iterator();
-                            while(iterator.hasNext() && !filter) {
-                                switch(iterator.next()) {
-                                    case "0":
-                                        if(issueNum.contains(check)) {
-                                            filter = true;
-                                        }
-                                        break;
-                                    case "1":
-                                        if(issueName.contains(check)) {
-                                            filter = true;
-                                        }
-                                        break;
-                                    case "2":
-                                        if(issueDate.contains(check)) {
-                                            filter = true;
-                                        }
-                                        break;
-                                }
-                            }
+                        if(searchIssueNum && issueNum.contains(check)){
+                            filter = true;
+                        }
+                        if(searchIssueName && issueName.contains(check)){
+                            filter = true;
+                        }
+                        if(searchIssueDate && issueDate.contains(check)){
+                            filter = true;
                         }
                     }
+                }
 
-                    if(filter){
+                ArrayList<Comic> filterComic=new ArrayList<>();
+                for(int x = 0;x<filterSet.get(i).filterComics.size();x++){
+                    if(col && filterSet.get(i).filterComics.get(x).collected || notCol && !filterSet.get(i).filterComics.get(x).collected){
+                        filterComic.add(filterSet.get(i).filterComics.get(x));
+                    }
+                }
+
+                filterSet.get(i).comics=filterComic;
+
+                if(filterSet.get(i).comics.size()!=0) {
+                    if (filter) {
+                        filterList.add(filterSet.get(i));
+                    } else if (!(constraint != null && constraint.length() > 0)) {
                         filterList.add(filterSet.get(i));
                     }
                 }
-                results.count=filterList.size();
-                results.values=filterList;
-            }else{
-                results.count=filterSet.size();
-                results.values=filterSet;
             }
+            results.count=filterList.size();
+            results.values=filterList;
             return results;
         }
 
@@ -259,20 +275,13 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
     public class displayHolder {
         Volume vol;
         ArrayList<Comic> comics;
+        ArrayList<Comic> filterComics;
         boolean extended;
-
-        public displayHolder(Volume v){
-            vol = v;
-        }
-
-        public displayHolder(Volume v, ArrayList<Comic> c) {
-            vol = v;
-            comics = c;
-        }
 
         public displayHolder(Volume v, ArrayList<Comic> c, boolean e) {
             vol = v;
             comics = c;
+            filterComics = comics;
             extended = e;
         }
     }

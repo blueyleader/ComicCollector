@@ -6,6 +6,38 @@
         android:title="@string/search_case_title"
         android:summary="@string/search_case_summary"/>
 
+<<<<<<< HEAD
+    <PreferenceCategory
+        android:title="@string/search_volume_title">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="search_volume_name"
+            android:title="@string/search_volume_name_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="search_volume_date"
+            android:title="@string/search_volume_date_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/search_issue_title">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="search_issue_num"
+            android:title="@string/search_issue_num_title" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="search_issue_name"
+            android:title="@string/search_issue_name_title" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="search_issue_date"
+            android:title="@string/search_issue_date_title" />
+    </PreferenceCategory>
+
+=======
 
     <MultiSelectListPreference
         android:defaultValue="@array/search_volume_default"
@@ -22,4 +54,5 @@
         android:key="search_comic"
         android:title="@string/search_comic_title"
         android:summary="@string/search_comic_summary"/>
+>>>>>>> origin/master
 </PreferenceScreen>

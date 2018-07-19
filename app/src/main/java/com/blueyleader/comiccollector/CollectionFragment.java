@@ -1,4 +1,4 @@
-package com.blueyleader.comicvine;
+package com.blueyleader.comiccollector;
 
 import android.app.AlertDialog;
 import android.app.ListFragment;
@@ -30,19 +30,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.blueyleader.comicvine.MainActivity.getJson;
-import static com.blueyleader.comicvine.MainActivity.json_id;
-import static com.blueyleader.comicvine.MainActivity.json_name;
-import static com.blueyleader.comicvine.MainActivity.json_results;
-import static com.blueyleader.comicvine.MainActivity.web_api_key;
-import static com.blueyleader.comicvine.MainActivity.web_base;
-import static com.blueyleader.comicvine.MainActivity.web_character_ref;
-import static com.blueyleader.comicvine.MainActivity.web_character;
-import static com.blueyleader.comicvine.MainActivity.web_format;
-import static com.blueyleader.comicvine.MainActivity.web_issue;
-import static com.blueyleader.comicvine.MainActivity.web_issue_ref;
-import static com.blueyleader.comicvine.MainActivity.web_volume;
-import static com.blueyleader.comicvine.MainActivity.web_volume_ref;
+import static com.blueyleader.comiccollector.MainActivity.getJson;
+import static com.blueyleader.comiccollector.MainActivity.json_id;
+import static com.blueyleader.comiccollector.MainActivity.json_name;
+import static com.blueyleader.comiccollector.MainActivity.json_results;
+import static com.blueyleader.comiccollector.MainActivity.web_api_key;
+import static com.blueyleader.comiccollector.MainActivity.web_base;
+import static com.blueyleader.comiccollector.MainActivity.web_character_ref;
+import static com.blueyleader.comiccollector.MainActivity.web_character;
+import static com.blueyleader.comiccollector.MainActivity.web_format;
+import static com.blueyleader.comiccollector.MainActivity.web_issue;
+import static com.blueyleader.comiccollector.MainActivity.web_issue_ref;
+import static com.blueyleader.comiccollector.MainActivity.web_volume;
+import static com.blueyleader.comiccollector.MainActivity.web_volume_ref;
 
 public class CollectionFragment extends ListFragment {
 

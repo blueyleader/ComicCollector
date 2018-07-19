@@ -6,10 +6,64 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/not_collected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="21dp"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/collected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="21dp"
+        app:srcCompat="@android:drawable/ic_dialog_map" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_visibility_24px" />
+
+    <Button
+        android:id="@+id/text_collected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="21dp"
+        android:background="@drawable/rounded"
+        android:clickable="false"
+        android:fadingEdge="horizontal|vertical"
+        android:text="Collected"
+        app:layout_constraintBottom_toBottomOf="@id/collected"
+        app:layout_constraintTop_toTopOf="@id/collected"
+        app:layout_constraintEnd_toEndOf="@id/collected"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/text_not_collected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="21dp"
+        android:background="@drawable/rounded"
+        android:clickable="false"
+        android:fadingEdge="horizontal|vertical"
+        android:text="Not Collected"
+        app:layout_constraintBottom_toBottomOf="@id/not_collected"
+        app:layout_constraintTop_toTopOf="@id/not_collected"
+        app:layout_constraintEnd_toEndOf="@id/not_collected"
+        android:visibility="gone"/>
 
 </android.support.constraint.ConstraintLayout>

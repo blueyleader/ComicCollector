@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ComicVine</string>
+    <string name="app_name">ComicCollector</string>
     <string name="stats">Stats</string>
     <string name="settings">Settings</string>
     <string name="charater">Character</string>
@@ -30,9 +30,21 @@
     <string name="search_case_summary">Have searches be case sensitive</string>
 
     <string name="search_volume_title">Volume Search</string>
+<<<<<<< HEAD
+    <string name="search_volume_name_title">Name</string>
+    <string name="search_volume_date_title">Start Year</string>
+
+    <string name="search_issue_title">Volume Search</string>
+    <string name="search_issue_num_title">Issue Number</string>
+    <string name="search_issue_name_title">Name</string>
+    <string name="search_issue_date_title">Start Year</string>
+
+    <!--<string-array name="search_volume_values">
+=======
     <string name="search_volume_summary">What part of volumes should be searched</string>
 
     <string-array name="search_volume_values">
+>>>>>>> origin/master
         <item>0</item>
         <item>1</item>
     </string-array>
@@ -65,7 +77,11 @@
 
     <string-array name="search_comic_default">
         <item>0</item>
+<<<<<<< HEAD
+    </string-array>-->
+=======
     </string-array>
 
+>>>>>>> origin/master
 
 </resources>

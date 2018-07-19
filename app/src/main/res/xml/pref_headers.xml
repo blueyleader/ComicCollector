@@ -3,17 +3,29 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
+<<<<<<< HEAD
+        android:fragment="com.blueyleader.comiccollector.GeneralSettingsSettings"
+=======
         android:fragment="com.blueyleader.comicvine.GeneralSettingsSettings"
+>>>>>>> origin/master
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/main_setting_general"/>
 
     <header
+<<<<<<< HEAD
+        android:fragment="com.blueyleader.comiccollector.SearchSettingsFragment"
+=======
         android:fragment="com.blueyleader.comicvine.SearchSettingsFragment"
+>>>>>>> origin/master
         android:icon="@drawable/search"
         android:title="@string/main_setting_search"/>
 
     <header
+<<<<<<< HEAD
+        android:fragment="com.blueyleader.comiccollector.CollectionFragment"
+=======
         android:fragment="com.blueyleader.comicvine.CollectionFragment"
+>>>>>>> origin/master
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/main_setting_rip_list"/>
 

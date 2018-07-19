@@ -1,4 +1,4 @@
-package com.blueyleader.comicvine;
+package com.blueyleader.comiccollector;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

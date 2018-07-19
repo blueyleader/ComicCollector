@@ -1,4 +1,4 @@
-package com.blueyleader.comicvine;
+package com.blueyleader.comiccollector;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
@@ -86,6 +86,8 @@ public class UpdateData extends AsyncTask<String, String, String> {
 
         //get volume extra info
         MainActivity.self.volumeDataProcessor();
+
+        MainActivity.self.setCollected();
 
         MainActivity.self.loadingDialog.cancel();
         return null;

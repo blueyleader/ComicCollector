@@ -21,7 +21,7 @@
         android:layout_marginRight="8dp" />
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/collected"
         android:focusable="false"
         android:text=""
         android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@id/checkBox"
+        app:layout_constraintEnd_toStartOf="@id/collected"
         app:layout_constraintGuide_percent="0.92"/>
 
     <View

@@ -1,4 +1,4 @@
-package com.blueyleader.comicvine;
+package com.blueyleader.comiccollector;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String web_character_ref= "4005-";
     public static final String web_volume_ref= "4050-";
     public static final String web_issue_ref= "4000-";
+
     //json strings
     public final static String json_results = "results";
     public final static String json_issue_credits = "issue_credits";
@@ -63,10 +68,8 @@ public class MainActivity extends AppCompatActivity {
     public final static String json_cover_date = "cover_date";
     public final static String json_issue_number = "issue_number";
     public final static String json_start_year = "start_year";
-    public final static String json_count_of_issue_appearances = "count_of_issue_appearances";
     public final static String json_site_detail_url = "site_detail_url";
 
-    public String key = "57e9f1dc4a6a9bdde575ca93d60621da18dcd080";
     public HashMap<Integer,Volume> set;
     public HashSet<Integer> collected;
 
@@ -78,6 +81,16 @@ public class MainActivity extends AppCompatActivity {
     public VolumeAdapter adapter;
 
     public ProgressDialog loadingDialog;
+
+    FloatingActionButton fabCol;
+    FloatingActionButton fabNotCol;
+    Button butCol;
+    Button butNotCol;
+
+    SearchView searchView;
+
+    boolean isFABOpen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +104,18 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO
         //load array of collected ids
-
+        File file = new File(getDir("data", MODE_PRIVATE), "collected");
+        if (file.exists()) {
+            try {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                collected = (HashSet<Integer>) ois.readObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (collected == null) {
+            collected = new HashSet<>();
+        }
 
         charactersToRip = new ArrayList<>();
         volumesToRip = new ArrayList<>();
@@ -101,11 +125,12 @@ public class MainActivity extends AppCompatActivity {
         Boolean pull = sh.getBoolean("auto_pull_start",false);
         if(!pull) {
             //load map of comics
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            file = new File(getDir("data", MODE_PRIVATE), "map");
             if (file.exists()) {
                 try {
                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                     set = (HashMap<Integer, Volume>) ois.readObject();
+                    setCollected();
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -113,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
             }
             if (set == null) {
                 set = new HashMap<>();
-
             }
         }
         else {
@@ -142,14 +166,120 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        adapter.getFilter().filter("");
 
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fabCol = findViewById(R.id.collected);
+        fabNotCol = findViewById(R.id.not_collected);
+        butCol = findViewById(R.id.text_collected);
+        butNotCol = findViewById(R.id.text_not_collected);
+        //fab3 = (FloatingActionButton) findViewById(R.id.fab3);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isFABOpen){
+                    showFABMenu();
+                }else{
+                    closeFABMenu();
+                }
+            }
+        });
+
+        boolean cur = sh.getBoolean("show_collected",false);
+        if(cur){
+            fabCol.setImageResource(R.drawable.ic_visibility_24px);
+        }
+        else{
+            fabCol.setImageResource(R.drawable.ic_visibility_off_24px);
+        }
+
+        cur = sh.getBoolean("show_not_collected",true);
+        if(cur){
+            fabNotCol.setImageResource(R.drawable.ic_visibility_24px);
+        }
+        else{
+            fabNotCol.setImageResource(R.drawable.ic_visibility_off_24px);
+        }
+
+        fabCol.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (MainActivity.self);
+                boolean cur = !sh.getBoolean("show_collected",false);
+                if(cur){
+                    fabCol.setImageResource(R.drawable.ic_visibility_24px);
+                }
+                else{
+                    fabCol.setImageResource(R.drawable.ic_visibility_off_24px);
+                }
+                sh.edit().putBoolean("show_collected",cur).commit();
+                adapter.getFilter().filter(searchView.getQuery());
+            }
+        });
+
+        fabNotCol.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (MainActivity.self);
+                boolean cur = !sh.getBoolean("show_not_collected",true);
+                if(cur){
+                    fabNotCol.setImageResource(R.drawable.ic_visibility_24px);
+                }
+                else{
+                    fabNotCol.setImageResource(R.drawable.ic_visibility_off_24px);
+                }
+                sh.edit().putBoolean("show_not_collected",cur).commit();
+                adapter.getFilter().filter(searchView.getQuery());
+                Log.d("ComicCollector","query is: " + searchView.getQuery());
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!isFABOpen){
+            super.onBackPressed();
+        }else{
+            closeFABMenu();
+        }
+    }
+
+    private void showFABMenu(){
+        isFABOpen=true;
+        butCol.setVisibility(View.VISIBLE);
+        butNotCol.setVisibility(View.VISIBLE);
+
+        fabCol.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
+        butCol.animate().translationY(-getResources().getDimension(R.dimen.standard_75));
+        butCol.animate().translationX(-getResources().getDimension(R.dimen.standard_55));
+
+        fabNotCol.animate().translationY(-getResources().getDimension(R.dimen.standard_145));
+        butNotCol.animate().translationY(-getResources().getDimension(R.dimen.standard_145));
+        butNotCol.animate().translationX(-getResources().getDimension(R.dimen.standard_55));
+    }
+
+    private void closeFABMenu(){
+        isFABOpen=false;
+        fabCol.animate().translationY(0);
+        fabNotCol.animate().translationY(0);
+        butCol.animate().translationY(0);
+        butCol.animate().translationX(0);
+        butNotCol.animate().translationY(0);
+        butNotCol.animate().translationX(0);
+
+        butCol.setVisibility(View.GONE);
+        butNotCol.setVisibility(View.GONE);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
+<<<<<<< HEAD:app/src/main/java/com/blueyleader/comiccollector/MainActivity.java
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+=======
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+>>>>>>> origin/master:app/src/main/java/com/blueyleader/comicvine/MainActivity.java
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -162,8 +292,11 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+<<<<<<< HEAD:app/src/main/java/com/blueyleader/comiccollector/MainActivity.java
+=======
         //SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+>>>>>>> origin/master:app/src/main/java/com/blueyleader/comicvine/MainActivity.java
 
         return true;
     }
@@ -209,14 +342,12 @@ public class MainActivity extends AppCompatActivity {
             reader = new BufferedReader(new InputStreamReader(stream));
 
             StringBuffer buffer = new StringBuffer();
-            String line = "";
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 buffer.append(line+"\n");
-                //Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
 
             }
-            //txtJson.setText(buffer.toString());
             return buffer.toString();
 
 
@@ -242,8 +373,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void characterProcessor(){
-            for(int z=0;z<charactersToRip.size();z++){
+    public void characterProcessor()
+    {
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
+        String key = sh.getString("API_KEY","");
+        if(key.equals("")){
+            Log.d("ComicVine","no Key");
+            Toast.makeText(this,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
+            return;
+        }
+        for(int z=0;z<charactersToRip.size();z++){
             try {
                 String url = web_base + web_character + web_character_ref + charactersToRip.get(z) + web_api_key + key + web_format;
                 String results = getJson(url,true);
@@ -274,6 +413,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void volumeProcessor(){
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
+        String key = sh.getString("API_KEY","");
+        if(key.equals("")){
+            Log.d("ComicVine","no Key");
+            Toast.makeText(this,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
+            return;
+        }
         for(int z =0;z<volumesToRip.size();z++){
             try {
                 String url = web_base + web_volume + web_volume_ref + volumesToRip.get(z) + web_api_key + key + web_format;
@@ -296,6 +442,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void issueProcessor(){
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
+        String key = sh.getString("API_KEY","");
+        if(key.equals("")){
+            Log.d("ComicVine","no Key");
+            Toast.makeText(this,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
+            return;
+        }
         String[] urls =  new String[issuesToRip.size()/100+1];
 
         for(int x=0;x<issuesToRip.size();x=x+100) {
@@ -329,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     int id = issue.getInt(json_id);
                     if(!vol.list.containsKey(id)) {
-                        vol.list.put(id, new Comic(issue.getInt(json_id) + "", issue.getString(json_name), issue.getString(json_cover_date), issue.getString(json_site_detail_url), issue.getString(json_issue_number)));
+                        vol.list.put(id, new Comic(issue.getInt(json_id), issue.getString(json_name), issue.getString(json_cover_date), issue.getString(json_site_detail_url), issue.getString(json_issue_number)));
                     }
                 }
             }
@@ -343,6 +496,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void volumeDataProcessor(){
+        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
+        String key = sh.getString("API_KEY","");
+        if(key.equals("")){
+            Log.d("ComicVine","no Key");
+            Toast.makeText(this,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
+            return;
+        }
+
         String[] urls = new String[set.size()/100+1];
         int counter =0;
         int index=0;
@@ -394,5 +555,28 @@ public class MainActivity extends AppCompatActivity {
                         "Loading. Please wait...", true);
             }
         });
+    }
+
+    public void setCollected(){
+        for(Volume vol : set.values() ){
+            for(Comic comic : vol.list.values()){
+                if(collected.contains(comic.id)){
+                    comic.collected=true;
+                }
+            }
+        }
+    }
+
+    public void saveCollected() {
+        try {
+            File file = new File(MainActivity.self.getDir("data", MODE_PRIVATE), "collected");
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(collected);
+            outputStream.flush();
+            outputStream.close();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
