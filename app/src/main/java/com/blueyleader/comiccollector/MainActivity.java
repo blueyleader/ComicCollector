@@ -26,10 +26,12 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -275,11 +277,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         // Retrieve the SearchView and plug it into SearchManager
-<<<<<<< HEAD:app/src/main/java/com/blueyleader/comiccollector/MainActivity.java
         searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
-=======
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
->>>>>>> origin/master:app/src/main/java/com/blueyleader/comicvine/MainActivity.java
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -292,12 +290,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-<<<<<<< HEAD:app/src/main/java/com/blueyleader/comiccollector/MainActivity.java
-=======
-        //SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
-        //searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
->>>>>>> origin/master:app/src/main/java/com/blueyleader/comicvine/MainActivity.java
-
         return true;
     }
 
