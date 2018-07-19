@@ -1,7 +1,10 @@
 package com.blueyleader.comiccollector;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -118,6 +122,25 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
             holder.issues = holder.issues + set.get(i).comics.get(x).issue + ", ";
             View child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
             TextView name = child.findViewById(R.id.issue_name);
+            child.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    try {
+
+                        //alert dialog to handle image
+                        //TODO get inage for comic
+                        URL url = new URL("http://image10.bizrate-images.com/resize?sq=60&uid=2216744464");
+                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        MainActivity.self.imageView.setImageBitmap(bmp);
+                        MainActivity.self.imageView.setVisibility(View.VISIBLE);
+                    }
+                    catch(Exception e){
+
+                    }
+                    Log.d("ComicCollector","got a long press");
+                    return false;
+                }
+            });
             CheckBox col = child.findViewById(R.id.collected);
             col.setChecked(set.get(i).comics.get(x).collected);
             col.setTag(set.get(i).comics.get(x));

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -89,12 +90,15 @@ public class MainActivity extends AppCompatActivity {
 
     SearchView searchView;
 
+    ImageView imageView;
+
     boolean isFABOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         self=this;
 
         //TODO remove and make safe
@@ -145,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
             set = new HashMap<>();
             new UpdateData().execute();
         }
+
+        imageView = findViewById(R.id.imageView);
+
         listView = findViewById(R.id.list);
 
         adapter = new VolumeAdapter(set);
@@ -237,10 +244,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(!isFABOpen){
-            super.onBackPressed();
-        }else{
+        //TODO not sure if needed after alert dialog
+        if(imageView.getVisibility()==View.VISIBLE){
+            imageView.setVisibility(View.GONE);
+        }
+        else if(isFABOpen){
             closeFABMenu();
+        }else{
+            super.onBackPressed();
         }
     }
 
