@@ -1,5 +1,7 @@
 package com.blueyleader.comiccollector;
 
+import android.view.View;
+
 import java.io.Serializable;
 
 public class Comic implements Serializable {
@@ -9,6 +11,7 @@ public class Comic implements Serializable {
     public String url;
     public String issue;
     public String image;
+    public View display;
 
     public Boolean collected = false;
 

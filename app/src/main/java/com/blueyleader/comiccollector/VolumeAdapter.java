@@ -1,9 +1,12 @@
 package com.blueyleader.comiccollector;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -113,7 +116,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         else{
             holder = (ViewHolder) convertView.getTag();
         }
-
+        Log.d("ComicVine","alot of work");
         holder.ref = i;
 
 
@@ -122,57 +125,56 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         holder.issues = "";
         for(int x = 0;x<set.get(i).comics.size();x++){
             holder.issues = holder.issues + set.get(i).comics.get(x).issue + ", ";
-            View child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
-            TextView name = child.findViewById(R.id.issue_name);
-            child.setTag(set.get(i).comics.get(x));
-            child.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    try {
-                        Comic c = (Comic)v.getTag();
-                        //alert dialog to handle image
-                        //TODO get image for comic
-                        URL url = new URL(c.image);
-                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            View child;
+            if(set.get(i).comics.get(x).display==null){
+                Log.d("ComicVine","new child");
+                child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
+                TextView name = child.findViewById(R.id.issue_name);
+                child.setTag(set.get(i).comics.get(x));
+                child.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        try {
+                            Comic c = (Comic)v.getTag();
+                            new GetImageTask().execute(c);
+                        }
+                        catch(Exception e){
 
-                        View view = LayoutInflater.from(v.getContext()).inflate(R.layout.image_dialog, null, false);
-                        ((ImageView)view.findViewById(R.id.imageView)).setImageBitmap(bmp);
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                        builder.setView(view);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                        //MainActivity.self.imageView.setImageBitmap(bmp);
-                        //MainActivity.self.imageView.setVisibility(View.VISIBLE);
+                        }
+                        Log.d("ComicCollector","got a long press");
+                        return false;
                     }
-                    catch(Exception e){
+                });
+                CheckBox col = child.findViewById(R.id.collected);
+                col.setChecked(set.get(i).comics.get(x).collected);
+                col.setTag(set.get(i).comics.get(x));
+                col.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Comic comic = (Comic)view.getTag();
+                        if(((CheckBox)view).isChecked()){
+                            MainActivity.self.collected.add(comic.id);
+                            comic.collected=true;
+                        }
+                        else{
+                            MainActivity.self.collected.remove(comic.id);
+                            comic.collected=true;
+                        }
+
+                        MainActivity.self.saveCollected();
 
                     }
-                    Log.d("ComicCollector","got a long press");
-                    return false;
-                }
-            });
-            CheckBox col = child.findViewById(R.id.collected);
-            col.setChecked(set.get(i).comics.get(x).collected);
-            col.setTag(set.get(i).comics.get(x));
-            col.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Comic comic = (Comic)view.getTag();
-                    if(((CheckBox)view).isChecked()){
-                        MainActivity.self.collected.add(comic.id);
-                        comic.collected=true;
-                    }
-                    else{
-                        MainActivity.self.collected.remove(comic.id);
-                        comic.collected=true;
-                    }
-
-                    MainActivity.self.saveCollected();
-
-                }
-            });
-            name.setText(set.get(i).comics.get(x).issue + " - " + set.get(i).comics.get(x).date + " - " + set.get(i).comics.get(x).name);
+                });
+                name.setText(set.get(i).comics.get(x).issue + " - " + set.get(i).comics.get(x).date + " - " + set.get(i).comics.get(x).name);
+                set.get(i).comics.get(x).display = child;
+            }
+            else{
+                child = set.get(i).comics.get(x).display;
+            }
+            //holder.comicList.removeAllViews();
+            if((ViewGroup)child.getParent()!=null) {
+                ((ViewGroup) child.getParent()).removeView(child);
+            }
             holder.comicList.addView(child);
         }
         if(holder.issues.length()>0) {
@@ -278,6 +280,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
                     }
                 }
             }
+
             results.count=filterList.size();
             results.values=filterList;
             return results;
@@ -289,7 +292,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         @Override
         protected void publishResults(CharSequence constraint,
                                       FilterResults results) {
-
+            Log.d("ComicVine","filter results");
             set=(ArrayList<displayHolder>) results.values;
             notifyDataSetChanged();
         }
@@ -307,6 +310,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         Volume vol;
         ArrayList<Comic> comics;
         ArrayList<Comic> filterComics;
+        View child;
         boolean extended;
 
         private displayHolder(Volume v, ArrayList<Comic> c, boolean e) {
@@ -314,6 +318,51 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
             comics = c;
             filterComics = comics;
             extended = e;
+        }
+    }
+
+    private class GetImageTask extends AsyncTask<Comic, int[], Bitmap> {
+        Comic c;
+        @Override
+        protected Bitmap doInBackground(Comic... params) {
+            c=params[0];
+            try {
+                URL url = new URL(c.image);
+                return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmapResult) {
+            super.onPostExecute(bitmapResult);
+            // This is back on your UI thread - Add your image to your view
+            View view = LayoutInflater.from(MainActivity.self).inflate(R.layout.image_dialog, null, false);
+            ImageView img = (ImageView) view.findViewById(R.id.imageView);
+            img.setTag(c);
+            img.setImageBitmap(bitmapResult);
+            img.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("ComicCollector", "short");
+                }
+            });
+            img.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Log.d("ComicCollector", "long");
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(((Comic) v.getTag()).url));
+                    MainActivity.self.startActivity(browserIntent);
+                    return false;
+                }
+            });
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.self);
+            builder.setView(view);
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 }
