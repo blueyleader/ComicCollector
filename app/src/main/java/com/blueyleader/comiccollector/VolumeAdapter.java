@@ -1,5 +1,6 @@
 package com.blueyleader.comiccollector;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -122,17 +124,26 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
             holder.issues = holder.issues + set.get(i).comics.get(x).issue + ", ";
             View child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
             TextView name = child.findViewById(R.id.issue_name);
+            child.setTag(set.get(i).comics.get(x));
             child.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     try {
-
+                        Comic c = (Comic)v.getTag();
                         //alert dialog to handle image
-                        //TODO get inage for comic
-                        URL url = new URL("http://image10.bizrate-images.com/resize?sq=60&uid=2216744464");
+                        //TODO get image for comic
+                        URL url = new URL(c.image);
                         Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                        MainActivity.self.imageView.setImageBitmap(bmp);
-                        MainActivity.self.imageView.setVisibility(View.VISIBLE);
+
+                        View view = LayoutInflater.from(v.getContext()).inflate(R.layout.image_dialog, null, false);
+                        ((ImageView)view.findViewById(R.id.imageView)).setImageBitmap(bmp);
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                        builder.setView(view);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        //MainActivity.self.imageView.setImageBitmap(bmp);
+                        //MainActivity.self.imageView.setVisibility(View.VISIBLE);
                     }
                     catch(Exception e){
 

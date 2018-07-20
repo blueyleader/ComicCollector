@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
     public final static String json_issue_number = "issue_number";
     public final static String json_start_year = "start_year";
     public final static String json_site_detail_url = "site_detail_url";
+    public final static String json_image = "image";
+    public final static String json_image_original = "original_url";
+
 
     public HashMap<Integer,Volume> set;
     public HashSet<Integer> collected;
@@ -485,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     int id = issue.getInt(json_id);
                     if(!vol.list.containsKey(id)) {
-                        vol.list.put(id, new Comic(issue.getInt(json_id), issue.getString(json_name), issue.getString(json_cover_date), issue.getString(json_site_detail_url), issue.getString(json_issue_number)));
+                        vol.list.put(id, new Comic(issue.getInt(json_id), issue.getString(json_name), issue.getString(json_cover_date), issue.getString(json_site_detail_url), issue.getString(json_issue_number),issue.getJSONObject(json_image).getString(json_image_original)));
                     }
                 }
             }
