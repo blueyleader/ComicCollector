@@ -125,56 +125,40 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         holder.issues = "";
         for(int x = 0;x<set.get(i).comics.size();x++){
             holder.issues = holder.issues + set.get(i).comics.get(x).issue + ", ";
-            View child;
-            if(set.get(i).comics.get(x).display==null){
-                Log.d("ComicVine","new child");
-                child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
-                TextView name = child.findViewById(R.id.issue_name);
-                child.setTag(set.get(i).comics.get(x));
-                child.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        try {
-                            Comic c = (Comic)v.getTag();
-                            new GetImageTask().execute(c);
-                        }
-                        catch(Exception e){
-
-                        }
-                        Log.d("ComicCollector","got a long press");
-                        return false;
+            View child = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.comic_view, viewGroup, false);
+            TextView name = child.findViewById(R.id.issue_name);
+            child.setTag(set.get(i).comics.get(x));
+            child.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    try {
+                        new GetImageTask().execute((Comic)v.getTag());
+                    } catch (Exception e) {
+                        Log.d("ComicCollector", "got a long press");
                     }
-                });
-                CheckBox col = child.findViewById(R.id.collected);
-                col.setChecked(set.get(i).comics.get(x).collected);
-                col.setTag(set.get(i).comics.get(x));
-                col.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Comic comic = (Comic)view.getTag();
-                        if(((CheckBox)view).isChecked()){
-                            MainActivity.self.collected.add(comic.id);
-                            comic.collected=true;
-                        }
-                        else{
-                            MainActivity.self.collected.remove(comic.id);
-                            comic.collected=true;
-                        }
-
-                        MainActivity.self.saveCollected();
-
+                    return false;
+                }
+            });
+            CheckBox col = child.findViewById(R.id.collected);
+            col.setChecked(set.get(i).comics.get(x).collected);
+            col.setTag(set.get(i).comics.get(x));
+            col.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Comic comic = (Comic)view.getTag();
+                    if(((CheckBox)view).isChecked()){
+                        MainActivity.self.collected.add(comic.id);
+                        comic.collected=true;
                     }
-                });
-                name.setText(set.get(i).comics.get(x).issue + " - " + set.get(i).comics.get(x).date + " - " + set.get(i).comics.get(x).name);
-                set.get(i).comics.get(x).display = child;
-            }
-            else{
-                child = set.get(i).comics.get(x).display;
-            }
-            //holder.comicList.removeAllViews();
-            if((ViewGroup)child.getParent()!=null) {
-                ((ViewGroup) child.getParent()).removeView(child);
-            }
+                    else{
+                        MainActivity.self.collected.remove(comic.id);
+                        comic.collected=true;
+                    }
+                    MainActivity.self.saveCollected();
+                }
+            });
+            name.setText(set.get(i).comics.get(x).issue + " - " + set.get(i).comics.get(x).date + " - " + set.get(i).comics.get(x).name);
+
             holder.comicList.addView(child);
         }
         if(holder.issues.length()>0) {
@@ -339,21 +323,13 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         @Override
         protected void onPostExecute(Bitmap bitmapResult) {
             super.onPostExecute(bitmapResult);
-            // This is back on your UI thread - Add your image to your view
             View view = LayoutInflater.from(MainActivity.self).inflate(R.layout.image_dialog, null, false);
-            ImageView img = (ImageView) view.findViewById(R.id.imageView);
+            ImageView img = view.findViewById(R.id.imageView);
             img.setTag(c);
             img.setImageBitmap(bitmapResult);
-            img.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d("ComicCollector", "short");
-                }
-            });
             img.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Log.d("ComicCollector", "long");
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(((Comic) v.getTag()).url));
                     MainActivity.self.startActivity(browserIntent);
                     return false;
