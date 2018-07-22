@@ -43,7 +43,15 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         //TODO add more sort options
         Arrays.sort(vol, new Comparator<Volume>() {
             public int compare(Volume o1, Volume o2) {
-                int name = o1.name.compareTo(o2.name);
+                String n1 = o1.name;
+                String n2 = o2.name;
+                if(n1.startsWith("The ")){
+                    n1 = n1.substring(4);
+                }
+                if(n2.startsWith("The")){
+                    n2 = n2.substring(4);
+                }
+                int name = n1.compareTo(n2);
                 if(name == 0){
                     return o1.date.compareTo(o2.date);
                 }
