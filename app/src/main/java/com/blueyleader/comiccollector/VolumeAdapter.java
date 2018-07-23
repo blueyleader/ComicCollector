@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -139,6 +141,7 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
             child.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
+                    Toast.makeText(v.getContext(),"Fetching image",Toast.LENGTH_LONG).show();
                     try {
                         new GetImageTask().execute((Comic)v.getTag());
                     } catch (Exception e) {
