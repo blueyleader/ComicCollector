@@ -5,6 +5,7 @@ import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -219,6 +220,7 @@ public class CollectionFragment extends ListFragment {
                         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 SettingsActivity.self.loading();
+
                                 // User clicked OK button
                                 String text =((EditText) ((AlertDialog) dialog).getCurrentFocus().findViewById(R.id.id_edit)).getText().toString();
                                 int num = 0;
@@ -237,6 +239,7 @@ public class CollectionFragment extends ListFragment {
                                 if(key.equals("")){
                                     Log.d("ComicVine","no Key");
                                     Toast.makeText(context,"Please add a ComicVine API key before adding objects",Toast.LENGTH_LONG).show();
+                                    MainActivity.self.loadingDialog.cancel();
                                     return;
                                 }
 
@@ -253,42 +256,11 @@ public class CollectionFragment extends ListFragment {
                                         break;
                                 }
 
-                                //new pullData().execute(url);
                                 Log.d("ComicVine","url is: " + url);
-                                String ret = getJson(url,false);
+                                new JsonGetter().execute(new Object[]{url,position});
 
-                                if(ret==null){
-                                    Toast.makeText(context,"Error while getting json from the web",Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                try {
-                                    JSONObject base = new JSONObject(ret);
-                                    String err = base.getString("error");
-                                    if(!err.equals("OK")){
-                                        Toast.makeText(context,"The id enetered was invalid",Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                    JSONObject root = base.getJSONObject(json_results);
-                                    String name = root.getString(json_name);
-                                    int objId = root.getInt(json_id);
-                                    //ViewHolder type = (ViewHolder) ((AlertDialog)dialog).getCurrentFocus().findViewById(R.id.id_edit).getTag();
-                                    RipObject rp = new RipObject(name, objId + "",  "", position);
-                                    switch(position) {
-                                        case 0:
-                                            charactersMap.put(objId, rp);
-                                            break;
-                                        case 1:
-                                            volumesMap.put(objId, rp);
-                                            break;
-                                        case 2:
-                                            issuesMap.put(objId, rp);
-                                            break;
-                                    }
-                                    updateData();
-                                }
-                                catch(Exception e){
-                                    e.printStackTrace();
-                                }
+
+
                             }
                         });
                         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -378,6 +350,66 @@ public class CollectionFragment extends ListFragment {
             ImageButton addButton;
             int ref;
             int type;
+        }
+
+        private class JsonGetter extends AsyncTask<Object,String,Integer>{
+
+            @Override
+            protected Integer doInBackground(Object... params) {
+                String ret = getJson((String)params[0],false);
+
+                if(ret==null){
+                    return -1;
+                }
+                try {
+                    JSONObject base = new JSONObject(ret);
+                    String err = base.getString("error");
+                    if(!err.equals("OK")){ MainActivity.self.loadingDialog.cancel();
+                        return -2;
+                    }
+                    JSONObject root = base.getJSONObject(json_results);
+                    String name = root.getString(json_name);
+                    int objId = root.getInt(json_id);
+                    RipObject rp = new RipObject(name, objId + "",  "", (int)params[1]);
+                    switch(rp.type) {
+                        case 0:
+                            charactersMap.put(objId, rp);
+                            break;
+                        case 1:
+                            volumesMap.put(objId, rp);
+                            break;
+                        case 2:
+                            issuesMap.put(objId, rp);
+                            break;
+                    }
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                    return -99;
+                }
+
+                return 0;
+            }
+
+            protected void onPostExecute(Integer result) {
+                switch(result){
+                    case -1:
+                        Toast.makeText(context,"Error while getting json from the web",Toast.LENGTH_LONG).show();
+                        break;
+                    case -2:
+                        Toast.makeText(context,"The id enetered was invalid",Toast.LENGTH_LONG).show();
+                        break;
+                    case -99:
+                        Toast.makeText(context,"Unknown error while getting information",Toast.LENGTH_LONG).show();
+                        break;
+                    default:
+                        updateData();
+                }
+
+                if(result<0){
+                    MainActivity.self.loadingDialog.cancel();
+                }
+            }
         }
     }
 }

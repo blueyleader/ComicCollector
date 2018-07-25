@@ -103,13 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
         self=this;
 
-        //TODO remove and make safe
-        /*StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-
-        StrictMode.setThreadPolicy(policy);*/
-
-        //TODO
-        //load array of collected ids
         File file = new File(getDir("data", MODE_PRIVATE), "collected");
         if (file.exists()) {
             try {
