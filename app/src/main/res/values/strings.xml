@@ -52,4 +52,5 @@
     <string name="search_issue_name_title">Name</string>
     <string name="search_issue_date_title">Start Year</string>
 
+    <string name="comicvine_api_web">https://comicvine.gamespot.com/api/</string>
 </resources>

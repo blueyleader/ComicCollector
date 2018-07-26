@@ -37,8 +37,8 @@ import static com.blueyleader.comiccollector.MainActivity.json_name;
 import static com.blueyleader.comiccollector.MainActivity.json_results;
 import static com.blueyleader.comiccollector.MainActivity.web_api_key;
 import static com.blueyleader.comiccollector.MainActivity.web_base;
-import static com.blueyleader.comiccollector.MainActivity.web_character_ref;
 import static com.blueyleader.comiccollector.MainActivity.web_character;
+import static com.blueyleader.comiccollector.MainActivity.web_character_ref;
 import static com.blueyleader.comiccollector.MainActivity.web_format;
 import static com.blueyleader.comiccollector.MainActivity.web_issue;
 import static com.blueyleader.comiccollector.MainActivity.web_issue_ref;
@@ -363,9 +363,11 @@ public class CollectionFragment extends ListFragment {
                 }
                 try {
                     JSONObject base = new JSONObject(ret);
-                    String err = base.getString("error");
-                    if(!err.equals("OK")){ MainActivity.self.loadingDialog.cancel();
-                        return -2;
+                    int status = base.getInt("status_code");
+                    if(status!=1){
+                        Log.d("ComicCollector","Error while getting json. status: " + status);
+                        MainActivity.self.loadingDialog.cancel();
+                        return status;
                     }
                     JSONObject root = base.getJSONObject(json_results);
                     String name = root.getString(json_name);
@@ -392,15 +394,27 @@ public class CollectionFragment extends ListFragment {
             }
 
             protected void onPostExecute(Integer result) {
+/*
+                1:OK
+                100:Invalid API Key
+                101:Object Not Found
+                102:Error in URL Format
+                103:'jsonp' format requires a 'json_callback' argument
+                104:Filter Error
+                105:Subscriber only video is for subscribers only
+*/
                 switch(result){
                     case -1:
                         Toast.makeText(context,"Error while getting json from the web",Toast.LENGTH_LONG).show();
                         break;
-                    case -2:
-                        Toast.makeText(context,"The id enetered was invalid",Toast.LENGTH_LONG).show();
+                    case 100:
+                        Toast.makeText(context,"Current API key is invalid",Toast.LENGTH_LONG).show();
+                        break;
+                    case 101:
+                        Toast.makeText(context,"Id of object was not found",Toast.LENGTH_LONG).show();
                         break;
                     case -99:
-                        Toast.makeText(context,"Unknown error while getting information",Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"Unknown error while getting information. josn stats is: " + result, Toast.LENGTH_LONG).show();
                         break;
                     default:
                         updateData();

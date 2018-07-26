@@ -96,7 +96,7 @@ public class UpdateData extends AsyncTask<String, String, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         try {
-            File file = new File(MainActivity.self.getDir("data", MODE_PRIVATE), "map");
+            File file = new File(MainActivity.self.getNoBackupFilesDir(), "map");
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(MainActivity.self.set);
             outputStream.flush();

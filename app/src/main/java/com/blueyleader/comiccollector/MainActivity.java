@@ -1,6 +1,8 @@
 package com.blueyleader.comiccollector;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -121,30 +124,54 @@ public class MainActivity extends AppCompatActivity {
         issuesToRip = new ArrayList<>();
 
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (this);
-        Boolean pull = sh.getBoolean("auto_pull_start",false);
+        String key = sh.getString("API_KEY","");
+        if(key.equals("")){
+            //really need a key to work
+            Log.d("ComicVine","no Key");
+
+            //create dialog to try and get key
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("ComicVine API key needed").setMessage("Please follow this link to get you ComicVine API key");
+            builder.setView(R.layout.key_dialog);
+            builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    String key =((EditText) ((AlertDialog) dialog).getCurrentFocus().findViewById(R.id.key_text)).getText().toString();
+                    SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (((AlertDialog) dialog).getContext());
+                    sh.edit().putString("API_KEY",key).apply();
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    // User cancelled the dialog
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+
+            dialog.show();
+        }
+        Boolean pull = sh.getBoolean("auto_pull_start", false);
         if(!pull) {
             //load map of comics
-            file = new File(getDir("data", MODE_PRIVATE), "map");
-            if (file.exists()) {
+            file = new File(getNoBackupFilesDir(), "map");
+            if(file.exists()) {
                 try {
                     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                     set = (HashMap<Integer, Volume>) ois.readObject();
                     setCollected();
 
-                } catch (Exception e) {
+                } catch(Exception e) {
                     e.printStackTrace();
                 }
             }
-            if (set == null) {
+            if(set == null) {
                 set = new HashMap<>();
             }
-        }
-        else {
+        } else {
             loading();
             set = new HashMap<>();
             new UpdateData().execute();
         }
-
         imageView = findViewById(R.id.imageView);
 
         listView = findViewById(R.id.list);
