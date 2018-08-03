@@ -343,6 +343,27 @@ public class MainActivity extends AppCompatActivity {
                 loading();
                 new UpdateData().execute();
                 break;
+            case R.id.stats:
+
+                int total = 0;
+                int collected = 0;
+
+                for(final Volume v: set.values()){
+                    for(final Comic c: v.list.values()){
+                        total++;
+                        if(c.collected){
+                            collected++;
+                        }
+                    }
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Stats").setMessage("Looking for: " + total + "\nCollected: " + collected + "\nPercent: " + (double)collected/total*100);
+
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
