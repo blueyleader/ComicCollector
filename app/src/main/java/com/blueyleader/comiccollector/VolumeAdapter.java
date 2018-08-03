@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -322,8 +323,30 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
         protected Bitmap doInBackground(Comic... params) {
             c=params[0];
             try {
-                URL url = new URL(c.image);
-                return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                //do we have the image already cached
+                File file = new File(MainActivity.self.getNoBackupFilesDir(), "images/"+c.id);
+                Bitmap bit;
+                if(!file.exists()){
+                    URL url = new URL(c.image);
+                    bit = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    //do we want to cache image
+                    //TODO get SharedPreferences for caching
+                    if(true && bit!=null){
+                        file.getParentFile().mkdir();
+                        FileOutputStream fOut = new FileOutputStream(file);
+
+                        bit.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+/*
+                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                        outputStream.writeObject(bit);
+                        outputStream.flush();
+                        outputStream.close();*/
+                    }
+                }
+                else{
+                    bit = BitmapFactory.decodeFile(file.getPath());
+                }
+                return bit;
             }
             catch(Exception e){
                 e.printStackTrace();
