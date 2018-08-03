@@ -5,6 +5,9 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -27,6 +30,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -364,6 +368,8 @@ public class MainActivity extends AppCompatActivity {
 
                 dialog.show();
                 break;
+            case R.id.images:
+                new GetAllImagesTask().execute();
         }
 
         return super.onOptionsItemSelected(item);
@@ -623,6 +629,44 @@ public class MainActivity extends AppCompatActivity {
         }
         catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    private class GetAllImagesTask extends AsyncTask<String, String, String> {
+
+
+        @Override
+        protected String doInBackground(String... strings) {
+            Log.d("ComicCollctor","starting to got all images");
+            for(Volume v : set.values()) {
+                for(Comic c : v.list.values()) {
+                    try {
+                        Log.d("ComicCollctor","getting image " + c.id);
+                        //do we have the image already cached
+                        File file = new File(MainActivity.self.getNoBackupFilesDir(), "images/" + c.id);
+                        if(!file.exists()) {
+                            URL url = new URL(c.image);
+                            Bitmap bit = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                            //do we want to cache image
+                            //TODO get SharedPreferences for caching
+                            if(bit != null) {
+                                file.getParentFile().mkdir();
+                                FileOutputStream fOut = new FileOutputStream(file);
+
+                                bit.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+                            }
+                        }
+                    } catch(FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch(MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            Log.d("ComicCollctor","got all images");
+            return null;
         }
     }
 }
