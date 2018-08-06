@@ -11,6 +11,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -633,26 +635,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class GetAllImagesTask extends AsyncTask<String, String, String> {
+        NotificationManagerCompat notificationManager;
+        NotificationCompat.Builder mBuilder;
+        String total;
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            int total = 0;
+            for(Volume v: set.values()){
+                total+=v.list.size();
+            }
+            this.total = total+"";
+            notificationManager = NotificationManagerCompat.from(self.getBaseContext());
+            mBuilder = new NotificationCompat.Builder(self.getBaseContext(), "0")
+                    .setSmallIcon(R.drawable.ic_add)
+                    .setContentTitle("ComicCollector")
+                    .setContentText("Getting images: 0 of " + total)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setOnlyAlertOnce(true);
+            notificationManager.notify(0, mBuilder.build());
+
+        }
 
         @Override
         protected String doInBackground(String... strings) {
-            Log.d("ComicCollctor","starting to got all images");
+            Log.d("ComicCollector","starting to got all images");
+            int count = 0;
             for(Volume v : set.values()) {
                 for(Comic c : v.list.values()) {
                     try {
-                        Log.d("ComicCollctor","getting image " + c.id);
+                        Log.d("ComicCollector","getting image " + c.id);
                         //do we have the image already cached
                         File file = new File(MainActivity.self.getNoBackupFilesDir(), "images/" + c.id);
+                        count++;
+                        onProgressUpdate(count+"");
                         if(!file.exists()) {
+                            Log.d("ComicCollector","need image");
                             URL url = new URL(c.image);
                             Bitmap bit = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                             //do we want to cache image
-                            //TODO get SharedPreferences for caching
                             if(bit != null) {
                                 file.getParentFile().mkdir();
                                 FileOutputStream fOut = new FileOutputStream(file);
-
                                 bit.compress(Bitmap.CompressFormat.PNG, 100, fOut);
                             }
                         }
@@ -665,8 +690,22 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            Log.d("ComicCollctor","got all images");
+            Log.d("ComicCollector","got all images");
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+
+            mBuilder.setContentText("Getting images:" + values[0] + " of " + total);
+            notificationManager.notify(0, mBuilder.build());
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            notificationManager.cancel(0);
         }
     }
 }

@@ -38,6 +38,9 @@
     <string name="general_update_title">Update data on Collection list update</string>
     <string name="general_update_summary">On update of collection list update the comic list</string>
 
+    <string name="general_image_cache_title">Cache comic images</string>
+    <string name="general_image_cache_summary">Cache comic images when getting them from teh web</string>
+
     <!-- Search Settings -->
     <string name="search_case_title">Case Sensitive</string>
     <string name="search_case_summary">Have searches be case sensitive</string>

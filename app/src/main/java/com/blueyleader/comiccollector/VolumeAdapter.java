@@ -329,18 +329,14 @@ public class VolumeAdapter extends BaseAdapter implements Filterable{
                 if(!file.exists()){
                     URL url = new URL(c.image);
                     bit = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+
                     //do we want to cache image
-                    //TODO get SharedPreferences for caching
-                    if(true && bit!=null){
+                    SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences (MainActivity.self);
+                    if(sh.getBoolean("cache_image",true) && bit!=null){
                         file.getParentFile().mkdir();
                         FileOutputStream fOut = new FileOutputStream(file);
 
                         bit.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-/*
-                        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                        outputStream.writeObject(bit);
-                        outputStream.flush();
-                        outputStream.close();*/
                     }
                 }
                 else{
